@@ -4,7 +4,14 @@
   "description": "This is the api server for the amazonias webapp, a personal project for webdevelopment",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "echo \"Warning: no test specified\" ",
+    "start": "ts-node src/server.ts",
+    "dev": "nodemon --exec ts-node src/server.ts",
+    "check-types": "tsc --pretty --noEmit",
+    "check-format": "prettier --check .",
+    "check-lint": "eslint . --ext ts --ext tsx --ext js",
+    "format": "prettier --write .",
+    "test-all": "npm run check-format && npm run check-lint && npm run check-types npm run test",
     "prepare": "husky install"
   },
   "author": "Roberto Martinez Rivera",
@@ -43,6 +50,7 @@
     "@typescript-eslint/parser": "^4.28.4",
     "eslint": "^7.31.0",
     "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.23.4",
     "husky": "^7.0.0",
     "nodemon": "^2.0.12",
