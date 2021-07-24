@@ -6,6 +6,8 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 
+import authRoutes from './routes/authRoutes';
+
 dotenv.config();
 
 const PORT = process.env.PORT || 5000;
@@ -22,10 +24,12 @@ app.use(cookieParser());
 app.use(
   cors({
     credentials: true,
-    origin: 'http://localhost:3000',
+    origin: process.env.CLIENT_ORIGIN || 'http://localhost:3000',
     optionsSuccessStatus: 200,
   })
 );
+
+app.use('/api/auth', authRoutes);
 
 // catch request made to no api end point
 app.use('/', (req: Request, res: Response) => {
