@@ -6,7 +6,6 @@ import User from '../models/User';
 export default async (req: Request, res: Response, next: NextFunction) => {
   try {
     let { token } = req.cookies;
-
     if (!token) throw new Error('User not authenticated');
 
     token = JSON.parse(token);

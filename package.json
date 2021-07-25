@@ -17,6 +17,7 @@
   "author": "Roberto Martinez Rivera",
   "license": "ISC",
   "dependencies": {
+    "@sendgrid/mail": "^7.4.5",
     "bcrypt": "^5.0.1",
     "cloudinary": "^1.26.2",
     "cookie": "^0.4.1",

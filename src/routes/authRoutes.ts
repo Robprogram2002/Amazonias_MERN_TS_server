@@ -7,6 +7,7 @@ import {
   logoutRequest,
   localSignIn,
   firebaseSignIn,
+  emailVerificationHandler,
 } from '../controllers/authController';
 
 const router = Router();
@@ -33,6 +34,7 @@ const signUpValidator = [
 router.post('/sign-up', signUpValidator, signUpHandler);
 router.post('/local-signin', localSignIn);
 router.post('/firebase-signin', firebaseSignIn);
+router.patch('/verify-email', emailVerificationHandler);
 router.get('/me', isAuth, meRequestHandler);
 router.get('/logout', logoutRequest);
 

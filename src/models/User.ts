@@ -54,7 +54,7 @@ const userSchema = new Schema(
       type: String,
       trim: true,
       minLength: [8, 'password must be at least 8 characters long'],
-      maxLength: [50, 'too long password'],
+      maxLength: [100, 'too long password'],
     },
     emailVerified: {
       type: Boolean,

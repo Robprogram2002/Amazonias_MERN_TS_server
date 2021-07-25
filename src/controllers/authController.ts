@@ -4,12 +4,15 @@ import { validationResult } from 'express-validator';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import sgMail from '@sendgrid/mail';
 import errorHandler from '../utils/ErrorHandler';
 import HttpException from '../utils/HttpException';
 import User from '../models/User';
 import admin from '../firebase';
 
 dotenv.config();
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
 
 export const signUpHandler = async (req: Request, res: Response) => {
   try {
@@ -39,7 +42,51 @@ export const signUpHandler = async (req: Request, res: Response) => {
       authProvider: 'local',
     }).save();
 
+    const secret = process.env.JWT_SECRET_EMAIL || 'some_secret_word';
+    const token = jwt.sign(
+      {
+        username,
+        createdAt: new Date(),
+        email,
+      },
+      secret,
+      {
+        expiresIn: '7d',
+      }
+    );
+
+    const msg = {
+      to: { email, name: username },
+      from: {
+        name: 'Amazonias Accounts',
+        email: 'robert.laksee20@gmail.com',
+      },
+      templateId: 'd-d9afe15898b04c42b3ea3a55e3945df5',
+      dynamicTemplateData: {
+        username,
+        url: `${process.env.CLIENT_ORIGIN}/verify-email/${token}`,
+      },
+    };
+
+    await sgMail.send(msg);
+
     res.status(200).json({ message: 'user sign up successfully' });
+  } catch (error) {
+    errorHandler(error, res);
+  }
+};
+
+export const emailVerificationHandler = async (req: Request, res: Response) => {
+  try {
+    const { token } = req.body;
+
+    const result = jwt.verify(token, process.env.JWT_SECRET_EMAIL!);
+    if (typeof result !== 'string') {
+      const { email } = result;
+      await User.updateOne({ email }, { $set: { emailVerified: true } });
+    }
+
+    res.status(200).json({ message: 'email verified successfuly' });
   } catch (error) {
     errorHandler(error, res);
   }
@@ -68,6 +115,8 @@ export const localSignIn = async (req: Request, res: Response) => {
         400,
         `email already used by ${user.authProvider} login`
       );
+    } else if (!user.emailVerified) {
+      throw new HttpException(400, 'This email address has not been verified');
     }
 
     const passComparison = await bcrypt.compare(password, user.password!);
