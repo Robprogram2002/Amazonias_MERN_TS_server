@@ -12,20 +12,25 @@ export async function removeAllCollections() {
 
 async function dropAllCollections() {
   const collections = Object.keys(mongoose.connection.collections);
-  collections.forEach(async (collectionName) => {
-    const collection = mongoose.connection.collections[collectionName];
-    try {
-      await collection.drop();
-    } catch (error) {
-      // Sometimes this error happens, but you can safely ignore it
-      if (error.message === 'ns not found') return;
-      // This error occurs when you use it.todo. You can
-      // safely ignore this error too
-      if (error.message.includes('a background operation is currently running'))
-        return;
-      console.log(error.message);
-    }
-  });
+
+  try {
+    await Promise.all(
+      collections.map(async (collectionName) => {
+        const collection = mongoose.connection.collections[collectionName];
+        return collection.drop();
+      })
+    );
+
+    await mongoose.connection.close();
+  } catch (error) {
+    // Sometimes this error happens, but you can safely ignore it
+    if (error.message === 'ns not found') return;
+    // This error occurs when you use it.todo. You can
+    // safely ignore this error too
+    if (error.message.includes('a background operation is currently running'))
+      return;
+    console.log(error.message);
+  }
 }
 
 export default {
@@ -41,14 +46,10 @@ export default {
     });
 
     // Cleans up database between each test
-    // afterEach(async () => {
-    //   await removeAllCollections();
-    // });
 
     // Disconnect Mongoose
     afterAll(async () => {
-      dropAllCollections();
-      await mongoose.connection.close();
+      await dropAllCollections();
     });
   },
 };

@@ -75,7 +75,9 @@
     "coveragePathIgnorePatterns": [
       "/node_modules/",
       "/dist/",
-      "/build/"
+      "/build/",
+      "build/",
+      "build"
     ]
   }
 }
