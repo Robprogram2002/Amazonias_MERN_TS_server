@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "This is the api server for the amazonias webapp, a personal project for webdevelopment",
   "main": "server.js",
-  "type": "module",
   "scripts": {
     "start": "ts-node src/index.ts",
     "dev": "nodemon --exec ts-node src/index.ts",
