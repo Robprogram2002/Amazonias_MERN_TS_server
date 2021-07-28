@@ -48,7 +48,11 @@ export const create = async (req: Request, res: Response) => {
       );
     }
 
-    const newDepartment = await new Department({ name, banners }).save();
+    const newDepartment = await new Department({
+      name,
+      banners,
+      slug: slugify(name),
+    }).save();
 
     res.status(200).json(newDepartment);
   } catch (error) {
@@ -58,6 +62,7 @@ export const create = async (req: Request, res: Response) => {
 export const update = async (req: Request, res: Response) => {
   try {
     const { name, banners } = req.body;
+    const { slug } = req.params;
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -68,19 +73,22 @@ export const update = async (req: Request, res: Response) => {
       );
     }
 
-    const updated = await Department.updateOne(
-      { name },
+    const result = await Department.updateOne(
+      { slug },
       {
         $set: {
           name,
           slug: slugify(name),
           banners,
         },
-      },
-      { new: true }
+      }
     );
-    console.log(updated);
-    res.status(200).json(updated);
+
+    if (result.ok === 1 && result.nModified === 1) {
+      res.status(200).json({ message: 'department updated successfully' });
+    } else {
+      throw new HttpException(404, 'No department was found with this slug');
+    }
   } catch (error) {
     errorHandler(error, res);
   }
@@ -89,9 +97,13 @@ export const deleteHandler = async (req: Request, res: Response) => {
   try {
     const { slug } = req.params;
 
-    await Department.deleteOne({ slug });
+    const result = await Department.deleteOne({ slug });
 
-    res.status(200).json({ message: 'department removed correctly' });
+    if (result.ok === 1 && result.deletedCount === 1) {
+      res.status(200).json({ message: 'department removed correctly' });
+    } else {
+      throw new HttpException(404, 'No department was found with this slug');
+    }
   } catch (error) {
     errorHandler(error, res);
   }

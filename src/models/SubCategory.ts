@@ -1,5 +1,4 @@
 import { Schema, model } from 'mongoose';
-import slugify from 'slugify';
 
 export interface ISubCategory {
   name: string;
@@ -33,9 +32,9 @@ const subCategorySchema = new Schema(
   { timestamps: true }
 );
 
-subCategorySchema.pre<ISubCategory>('save', function () {
-  const doc = this;
-  doc.slug = slugify(doc.name);
-});
+// subCategorySchema.pre<ISubCategory>('save', function () {
+//   const doc = this;
+//   doc.slug = slugify(doc.name);
+// });
 
-export default model<ISubCategory>('Category', subCategorySchema);
+export default model<ISubCategory>('SubCategory', subCategorySchema);

@@ -7,7 +7,7 @@
     "start": "ts-node src/index.ts",
     "dev": "nodemon --exec ts-node src/index.ts",
     "build": "tsc",
-    "test": "jest --verbose ",
+    "test": "jest --verbose --detectOpenHandles",
     "test:watch": "jest --verbose --watch",
     "check-types": "tsc --pretty --noEmit",
     "check-format": "prettier --check .",

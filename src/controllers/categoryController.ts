@@ -49,6 +49,7 @@ export const create = async (req: Request, res: Response) => {
       name,
       banners,
       departmentId,
+      slug: slugify(name),
     }).save();
 
     res.status(200).json(newCategory);
@@ -56,9 +57,11 @@ export const create = async (req: Request, res: Response) => {
     errorHandler(error, res);
   }
 };
+
 export const update = async (req: Request, res: Response) => {
   try {
     const { name, banners } = req.body;
+    const { slug } = req.params;
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -69,30 +72,37 @@ export const update = async (req: Request, res: Response) => {
       );
     }
 
-    const updated = await Category.updateOne(
-      { name },
+    const result = await Category.updateOne(
+      { slug },
       {
         $set: {
           name,
           slug: slugify(name),
           banners,
         },
-      },
-      { new: true }
+      }
     );
-    console.log(updated);
-    res.status(200).json(updated);
+    if (result.ok === 1 && result.nModified === 1) {
+      res.status(200).json({ message: 'category updated successfully' });
+    } else {
+      throw new HttpException(404, 'No category was found with this slug');
+    }
   } catch (error) {
     errorHandler(error, res);
   }
 };
+
 export const deleteHandler = async (req: Request, res: Response) => {
   try {
     const { slug } = req.params;
 
-    await Category.deleteOne({ slug });
+    const result = await Category.deleteOne({ slug });
 
-    res.status(200).json({ message: 'category removed correctly' });
+    if (result.ok === 1 && result.deletedCount === 1) {
+      res.status(200).json({ message: 'category removed correctly' });
+    } else {
+      throw new HttpException(404, 'No category was found with this slug');
+    }
   } catch (error) {
     errorHandler(error, res);
   }

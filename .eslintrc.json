@@ -25,7 +25,7 @@
         "tsx": "never"
       }
     ],
-    "import/no-extraneous-dependencies": 1
+    "import/no-extraneous-dependencies": 0
   },
   "settings": {
     "import/resolver": {

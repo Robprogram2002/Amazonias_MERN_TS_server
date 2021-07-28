@@ -6,7 +6,7 @@ export default async (req: Request, res: Response, next: NextFunction) => {
 
     if (!user) throw new Error('User not authenticated');
 
-    if (user.role !== 'admin') {
+    if (user.role !== 'Admin') {
       throw new Error('');
     } else {
       next();

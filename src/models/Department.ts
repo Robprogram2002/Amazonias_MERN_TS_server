@@ -1,5 +1,4 @@
 import { Schema, model } from 'mongoose';
-import slugify from 'slugify';
 
 export interface IDepartment {
   name: string;
@@ -60,9 +59,10 @@ const departmentSchema = new Schema(
 //   console.log(this.getFilter());
 // });
 
-departmentSchema.pre<IDepartment>('save', function () {
-  const doc = this;
-  doc.slug = slugify(doc.name);
-});
+// departmentSchema.pre<IDepartment>('save', function () {
+//   const doc = this;
+//   doc.slug = slugify(doc.name);
+
+// });
 
 export default model<IDepartment>('Department', departmentSchema);
