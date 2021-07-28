@@ -3,7 +3,6 @@ import slugify from 'slugify';
 
 export interface ISubCategory {
   name: string;
-  banners: { publicId: string; url: string }[];
   slug: string;
   categoryId: string;
   createdAt: Date;
@@ -20,18 +19,6 @@ const subCategorySchema = new Schema(
       index: true,
       unique: true,
     },
-    banners: [
-      {
-        publicId: {
-          type: String,
-          required: true,
-        },
-        url: {
-          type: String,
-          required: true,
-        },
-      },
-    ],
     slug: {
       type: String,
       required: true,
