@@ -3,6 +3,7 @@ import { Schema, model } from 'mongoose';
 export interface IDepartment {
   name: string;
   banners: { publicId: string; url: string }[];
+  description: string;
   createdAt: Date;
   updatedAt: Date;
   slug: string;
@@ -17,6 +18,12 @@ const departmentSchema = new Schema(
       maxLength: [70, 'Too long name'],
       index: true,
       unique: true,
+    },
+    description: {
+      type: String,
+      required: true,
+      minLength: [50, 'Description must be at least 50 characters long'],
+      text: true,
     },
     banners: [
       {

@@ -5,6 +5,7 @@ export interface ICategory {
   banners: { publicId: string; url: string }[];
   slug: string;
   departmentId: string;
+  description: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -18,6 +19,12 @@ const categorySchema = new Schema(
       maxLength: [70, 'Too long name'],
       index: true,
       unique: true,
+    },
+    description: {
+      type: String,
+      required: true,
+      minLength: [50, 'Description must be at least 50 characters long'],
+      text: true,
     },
     banners: [
       {

@@ -22,7 +22,7 @@ export const upload = async (req: Request, res: Response) => {
     });
 
     res.status(200).json({
-      public_id: result.public_id,
+      publicId: result.public_id,
       url: result.secure_url,
     });
   } catch (error) {
@@ -32,10 +32,10 @@ export const upload = async (req: Request, res: Response) => {
 
 export const remove = (req: Request, res: Response) => {
   try {
-    const { publicId } = req.body;
+    const { publicId } = req.params;
     cloudinary.v2.uploader.destroy(publicId, (err: any) => {
       if (err) throw err;
-      res.status(200).json({ message: 'Image deleted correctly' });
+      res.status(200).json({ message: 'Image deleted correctly', publicId });
     });
   } catch (error) {
     errorHandler(error, res);

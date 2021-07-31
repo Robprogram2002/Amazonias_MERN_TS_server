@@ -71,12 +71,21 @@
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "node",
+    "collectCoverageFrom": [
+      "src/tests/**",
+      "!build/**"
+    ],
+    "testPathIgnorePatterns": [
+      "build",
+      "dist",
+      "node_modules"
+    ],
     "coveragePathIgnorePatterns": [
       "/node_modules/",
       "/dist/",
       "/build/",
-      "build/",
-      "build"
+      "build",
+      "./build"
     ]
   }
 }

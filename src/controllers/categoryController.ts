@@ -27,7 +27,7 @@ export const fetchOne = async (req: Request, res: Response) => {
 };
 export const create = async (req: Request, res: Response) => {
   try {
-    const { name, banners, departmentId } = req.body;
+    const { name, banners, departmentId, description } = req.body;
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -50,6 +50,7 @@ export const create = async (req: Request, res: Response) => {
       banners,
       departmentId,
       slug: slugify(name),
+      description,
     }).save();
 
     res.status(200).json(newCategory);
@@ -60,7 +61,7 @@ export const create = async (req: Request, res: Response) => {
 
 export const update = async (req: Request, res: Response) => {
   try {
-    const { name, banners } = req.body;
+    const { name, banners, description } = req.body;
     const { slug } = req.params;
     const errors = validationResult(req);
 
@@ -79,6 +80,7 @@ export const update = async (req: Request, res: Response) => {
           name,
           slug: slugify(name),
           banners,
+          description,
         },
       }
     );

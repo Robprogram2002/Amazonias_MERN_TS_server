@@ -19,6 +19,12 @@ const departValidator = [
     .trim()
     .isLength({ min: 3, max: 70 })
     .withMessage('name must be at least 3 characters long'),
+  body('description')
+    .isString()
+    .trim()
+    .notEmpty()
+    .isLength({ min: 50 })
+    .withMessage('description must be at least 50 characters long'),
   body('banners')
     .isArray({ min: 4, max: 4 })
     .withMessage('department must have 4 banner images'),

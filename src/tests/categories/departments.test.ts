@@ -56,19 +56,24 @@ const createAdminUser = async () => {
   );
 };
 
+jest.setTimeout(10000);
+
 describe('departement entity end points', () => {
   hooks.setupDB(databaseName);
-
   const departments = [
     {
       slug: slugify('Food and Fitness'),
       name: 'Food and Fitness',
       banners: [fakeBanner, fakeBanner, fakeBanner, fakeBanner],
+      description:
+        'random long description : Lorem ipsum dolor sit amet consectetur adipisicing elit. Quibusdam explicabo error officia harum a, in accusantium corrupti nemo maxime optio magni veritatis iure reprehenderit illo obcaecati eius dolorum, quis consequatur eligendi, reiciendis ipsam rerum veniam distinctio. Debitis veritatis natus animi. Dolore hic odit ad repellat nesciunt esse, quo fuga corrupti?',
     },
     {
       name: 'Man Clothe',
       slug: slugify('Man Clothe'),
       banners: [fakeBanner, fakeBanner, fakeBanner, fakeBanner],
+      description:
+        'random long description : Lorem ipsum dolor sit amet consectetur adipisicing elit. Quibusdam explicabo error officia harum a, in accusantium corrupti nemo maxime optio magni veritatis iure reprehenderit illo obcaecati eius dolorum, quis consequatur eligendi, reiciendis ipsam rerum veniam distinctio. Debitis veritatis natus animi. Dolore hic odit ad repellat nesciunt esse, quo fuga corrupti?',
     },
   ];
 
@@ -76,6 +81,8 @@ describe('departement entity end points', () => {
     name: 'Woman Clothe',
     slug: slugify('Woman Clothe'),
     banners: [fakeBanner, fakeBanner, fakeBanner, fakeBanner],
+    description:
+      'random long description : Lorem ipsum dolor sit amet consectetur adipisicing elit. Quibusdam explicabo error officia harum a, in accusantium corrupti nemo maxime optio magni veritatis iure reprehenderit illo obcaecati eius dolorum, quis consequatur eligendi, reiciendis ipsam rerum veniam distinctio. Debitis veritatis natus animi. Dolore hic odit ad repellat nesciunt esse, quo fuga corrupti?',
   };
 
   beforeEach(async () => {
@@ -118,10 +125,11 @@ describe('departement entity end points', () => {
     expect(response.status).toBe(200);
     expect(response.body).toBeDefined();
 
-    const { name, slug, banners } = response.body;
+    const { name, slug, banners, description } = response.body;
 
     expect(name).toBe(desired.name);
     expect(slug).toBe(slugify(desired.name));
+    expect(description).toBe(desired.description);
 
     const bannerUrls: string[] = banners.map((element: any) => element.url);
     expect(bannerUrls).toContain(fakeBanner.url);
@@ -142,6 +150,7 @@ describe('departement entity end points', () => {
     expect(response.body.name).toBe(newDepartment.name);
     expect(response.body.slug).toBe(newDepartment.slug);
     expect(response.body.banners[0].url).toBe(newDepartment.banners[0].url);
+    expect(response.body.description).toBe(newDepartment.description);
 
     // check that the department was saved
     const saved = await Department.findOne({ name: newDepartment.name }).lean();
@@ -155,12 +164,16 @@ describe('departement entity end points', () => {
     const response = await request
       .post('/api/departments/create')
       .set('Cookie', adminCookie)
-      .send({ name: '2', banners: newDepartment.banners.pop() })
+      .send({
+        name: '2',
+        banners: newDepartment.banners.pop(),
+        description: 'too short description',
+      })
       .expect('Content-Type', /json/);
 
     expect(response.status).toBe(400);
     expect(response.body.message).toBe('Bad input data');
-    expect(response.body.data.length).toBeGreaterThanOrEqual(2);
+    expect(response.body.data.length).toBeGreaterThanOrEqual(3);
 
     // check that the department is not created
     const saved = await Department.findOne({ name: '2' }).lean();
@@ -175,7 +188,7 @@ describe('departement entity end points', () => {
     const response = await request
       .patch(`/api/departments/update/${currentDep.slug}`)
       .set('Cookie', adminCookie)
-      .send({ name: newName, banners: currentDep.banners })
+      .send({ ...currentDep, name: newName })
       .expect('Content-Type', /json/);
 
     expect(response.status).toBe(200);
@@ -196,7 +209,7 @@ describe('departement entity end points', () => {
     const response = await request
       .patch(`/api/departments/update/no_exist_slug`)
       .set('Cookie', adminCookie)
-      .send({ name: newName, banners: currentDep.banners })
+      .send({ ...currentDep, name: newName })
       .expect('Content-Type', /json/);
 
     expect(response.status).toBe(404);
