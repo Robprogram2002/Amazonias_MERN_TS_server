@@ -17,6 +17,7 @@ const subCategorySchema = new Schema(
       maxLength: [70, 'Too long name'],
       index: true,
       unique: true,
+      text: true,
     },
     slug: {
       type: String,

@@ -9,6 +9,7 @@ import {
   fetchOne,
   list,
   update,
+  filterByText,
 } from '../controllers/departmentController';
 
 const departValidator = [
@@ -50,6 +51,7 @@ const router = Router();
 
 router.get('/list', list);
 router.get('/list/:slug', fetchOne);
+router.get('/filter/by-text', filterByText);
 router.post('/create', isAuth, isAdmin, departValidator, create);
 router.patch('/update/:slug', isAuth, isAdmin, departValidator, update);
 router.delete('/delete/:slug', isAuth, isAdmin, deleteHandler);

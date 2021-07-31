@@ -110,3 +110,27 @@ export const deleteHandler = async (req: Request, res: Response) => {
     errorHandler(error, res);
   }
 };
+
+export const filterByText = async (req: Request, res: Response) => {
+  try {
+    const { text } = req.query;
+
+    if (typeof text === 'string') {
+      // const departments = await Department.find({
+      //   $text: { $search: text },
+      // }).lean();
+      const departments = await Department.find({
+        name: { $regex: text, $options: 'i' },
+      }).lean();
+
+      res.status(200).json(departments);
+    } else if (text === undefined) {
+      const departments = await Department.find({}).lean();
+      res.status(200).json(departments);
+    } else {
+      res.status(400).json(req.query);
+    }
+  } catch (error) {
+    errorHandler(error, res);
+  }
+};

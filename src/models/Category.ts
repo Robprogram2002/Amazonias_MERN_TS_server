@@ -19,6 +19,7 @@ const categorySchema = new Schema(
       maxLength: [70, 'Too long name'],
       index: true,
       unique: true,
+      text: true,
     },
     description: {
       type: String,

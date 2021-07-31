@@ -1,9 +1,36 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import slugify from 'slugify';
+import { Types } from 'mongoose';
 import SubCategory from '../models/SubCategory';
 import errorHandler from '../utils/ErrorHandler';
 import HttpException from '../utils/HttpException';
+
+const categoryLookUp = {
+  $lookup: {
+    from: 'categories',
+    as: 'category',
+    let: {
+      category: '$categoryId',
+    },
+    pipeline: [
+      {
+        $match: {
+          $expr: {
+            $eq: ['$_id', '$$category'],
+          },
+        },
+      },
+      {
+        $project: {
+          name: 1,
+          _id: 1,
+          slug: 1,
+        },
+      },
+    ],
+  },
+};
 
 export const list = async (req: Request, res: Response) => {
   try {
@@ -103,6 +130,55 @@ export const deleteHandler = async (req: Request, res: Response) => {
     } else {
       throw new HttpException(404, 'No sub-category was found with this slug');
     }
+  } catch (error) {
+    errorHandler(error, res);
+  }
+};
+
+export const listByCategory = async (req: Request, res: Response) => {
+  try {
+    const { categoryId } = req.params;
+    const subs = await SubCategory.find({ categoryId }).lean();
+
+    res.status(200).json(subs);
+  } catch (error) {
+    errorHandler(error, res);
+  }
+};
+
+export const filterByText = async (req: Request, res: Response) => {
+  try {
+    const { text, category } = req.query;
+
+    let subcategories: any[] = [];
+
+    if (category && typeof category === 'string') {
+      subcategories = await SubCategory.aggregate([
+        {
+          $match: {
+            name: {
+              $regex: text || '',
+              $options: 'i',
+            },
+            categoryId: new Types.ObjectId(category),
+          },
+        },
+        categoryLookUp,
+      ]);
+    } else {
+      subcategories = await SubCategory.aggregate([
+        {
+          $match: {
+            name: {
+              $regex: text || '',
+              $options: 'i',
+            },
+          },
+        },
+        categoryLookUp,
+      ]);
+    }
+    res.status(200).json(subcategories);
   } catch (error) {
     errorHandler(error, res);
   }

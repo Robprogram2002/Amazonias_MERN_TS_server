@@ -8,7 +8,9 @@ import {
   deleteHandler,
   fetchOne,
   list,
+  listByDepartment,
   update,
+  filterByText,
 } from '../controllers/categoryController';
 
 const router = Router();
@@ -51,6 +53,8 @@ const categoryValidator = [
 
 router.get('/list', list);
 router.get('/list/:slug', fetchOne);
+router.get('/list/by-department/:departmentId', listByDepartment);
+router.get('/filter/by-text', filterByText);
 router.post('/create', isAuth, isAdmin, categoryValidator, create);
 router.patch('/update/:slug', isAuth, isAdmin, categoryValidator, update);
 router.delete('/delete/:slug', isAuth, isAdmin, deleteHandler);

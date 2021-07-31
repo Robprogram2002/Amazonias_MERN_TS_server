@@ -1,9 +1,36 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import slugify from 'slugify';
+import { Types } from 'mongoose';
 import Category from '../models/Category';
 import errorHandler from '../utils/ErrorHandler';
 import HttpException from '../utils/HttpException';
+
+const departmentLookUp = {
+  $lookup: {
+    from: 'departments',
+    as: 'department',
+    let: {
+      department: '$departmentId',
+    },
+    pipeline: [
+      {
+        $match: {
+          $expr: {
+            $eq: ['$_id', '$$department'],
+          },
+        },
+      },
+      {
+        $project: {
+          name: 1,
+          _id: 1,
+          slug: 1,
+        },
+      },
+    ],
+  },
+};
 
 export const list = async (req: Request, res: Response) => {
   try {
@@ -105,6 +132,55 @@ export const deleteHandler = async (req: Request, res: Response) => {
     } else {
       throw new HttpException(404, 'No category was found with this slug');
     }
+  } catch (error) {
+    errorHandler(error, res);
+  }
+};
+
+export const listByDepartment = async (req: Request, res: Response) => {
+  try {
+    const { departmentId } = req.params;
+    const categories = await Category.find({ departmentId }).lean();
+
+    res.status(200).json(categories);
+  } catch (error) {
+    errorHandler(error, res);
+  }
+};
+
+export const filterByText = async (req: Request, res: Response) => {
+  try {
+    const { text, department } = req.query;
+
+    let categories: any[] = [];
+
+    if (department && typeof department === 'string') {
+      categories = await Category.aggregate([
+        {
+          $match: {
+            name: {
+              $regex: text || '',
+              $options: 'i',
+            },
+            departmentId: new Types.ObjectId(department),
+          },
+        },
+        departmentLookUp,
+      ]);
+    } else {
+      categories = await Category.aggregate([
+        {
+          $match: {
+            name: {
+              $regex: text || '',
+              $options: 'i',
+            },
+          },
+        },
+        departmentLookUp,
+      ]);
+    }
+    res.status(200).json(categories);
   } catch (error) {
     errorHandler(error, res);
   }
