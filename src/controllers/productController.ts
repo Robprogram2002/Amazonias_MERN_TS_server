@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-// import { validationResult } from 'express-validator';
-// import slugify from 'slugify';
+import { validationResult } from 'express-validator';
+import slugify from 'slugify';
 import { Types } from 'mongoose';
 import errorHandler from '../utils/ErrorHandler';
 import HttpException from '../utils/HttpException';
@@ -29,7 +29,30 @@ export const fetchOne = async (req: Request, res: Response) => {
 };
 export const create = async (req: Request, res: Response) => {
   try {
-    res.status(200).json({});
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      throw new HttpException(
+        400,
+        'Bad input data',
+        errors.array({ onlyFirstError: true })
+      );
+    }
+
+    req.body.slug = slugify(req.body.title);
+
+    // check that there is no product with the same name
+    const isUsed = await Product.findOne({ slug: req.body.slug }).lean();
+
+    if (isUsed) {
+      throw new HttpException(400, 'Already exist a category with these name');
+    }
+
+    const newProduct = await new Product({
+      ...req.body,
+    }).save();
+
+    res.status(200).json(newProduct);
   } catch (error) {
     errorHandler(error, res);
   }

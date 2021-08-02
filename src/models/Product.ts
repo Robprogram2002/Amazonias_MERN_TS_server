@@ -88,6 +88,11 @@ const productSchema = new Schema(
       //   required: true,
       min: [0, 'Stock must be greater than or equal to 0'],
     },
+    sold: {
+      type: Number,
+      default: 0,
+      min: [0, 'sold must be greater than or equal to 0'],
+    },
     images: [
       {
         publicId: {
@@ -105,14 +110,13 @@ const productSchema = new Schema(
       onSale: {
         type: Boolean,
         required: true,
+        default: false,
       },
       saleAmount: {
         type: Number,
-        required: true,
       },
       expiry: {
         type: Date,
-        required: true,
       },
     },
     categoryId: {
@@ -142,7 +146,7 @@ const productSchema = new Schema(
     state: {
       type: String,
       enum: {
-        values: ['active', 'paused', 'removed'],
+        values: ['active', 'not-active', 'removed'],
         message: '{VALUE} is not supported like a product condition option',
       },
     },
