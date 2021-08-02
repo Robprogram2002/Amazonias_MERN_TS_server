@@ -121,9 +121,9 @@ export const update = async (req: Request, res: Response) => {
 };
 export const deleteHandler = async (req: Request, res: Response) => {
   try {
-    const { slug } = req.params;
+    const { id } = req.params;
 
-    const result = await SubCategory.deleteOne({ slug });
+    const result = await SubCategory.deleteOne({ _id: Types.ObjectId(id) });
 
     if (result.ok === 1 && result.deletedCount === 1) {
       res.status(200).json({ message: 'sub-category removed correctly' });

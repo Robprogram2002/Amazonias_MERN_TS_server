@@ -32,6 +32,6 @@ router.get('/list/by-category/:categoryId', listByCategory);
 router.get('/filter/by-text', filterByText);
 router.post('/create', isAuth, isAdmin, subCategoryValidator, create);
 router.patch('/update/:slug', isAuth, isAdmin, subCategoryValidator, update);
-router.delete('/delete/:slug', isAuth, isAdmin, deleteHandler);
+router.delete('/delete/:id', isAuth, isAdmin, deleteHandler);
 
 export default router;

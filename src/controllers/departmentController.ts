@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import slugify from 'slugify';
+import { Types } from 'mongoose';
 import Department from '../models/Department';
 import errorHandler from '../utils/ErrorHandler';
 import HttpException from '../utils/HttpException';
@@ -97,9 +98,9 @@ export const update = async (req: Request, res: Response) => {
 };
 export const deleteHandler = async (req: Request, res: Response) => {
   try {
-    const { slug } = req.params;
+    const { id } = req.params;
 
-    const result = await Department.deleteOne({ slug });
+    const result = await Department.deleteOne({ _id: Types.ObjectId(id) });
 
     if (result.ok === 1 && result.deletedCount === 1) {
       res.status(200).json({ message: 'department removed correctly' });

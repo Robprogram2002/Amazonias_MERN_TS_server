@@ -54,6 +54,6 @@ router.get('/list/:slug', fetchOne);
 router.get('/filter/by-text', filterByText);
 router.post('/create', isAuth, isAdmin, departValidator, create);
 router.patch('/update/:slug', isAuth, isAdmin, departValidator, update);
-router.delete('/delete/:slug', isAuth, isAdmin, deleteHandler);
+router.delete('/delete/:id', isAuth, isAdmin, deleteHandler);
 
 export default router;

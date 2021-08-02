@@ -57,6 +57,6 @@ router.get('/list/by-department/:departmentId', listByDepartment);
 router.get('/filter/by-text', filterByText);
 router.post('/create', isAuth, isAdmin, categoryValidator, create);
 router.patch('/update/:slug', isAuth, isAdmin, categoryValidator, update);
-router.delete('/delete/:slug', isAuth, isAdmin, deleteHandler);
+router.delete('/delete/:id', isAuth, isAdmin, deleteHandler);
 
 export default router;

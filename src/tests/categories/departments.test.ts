@@ -218,30 +218,30 @@ describe('departement entity end points', () => {
     );
   });
 
-  it('/departments/delete/:slug : remove an existing department with the given slug', async () => {
-    const adminCookie = await createAdminUser();
-    const desired = departments[0];
+  // it('/departments/delete/:slug : remove an existing department with the given slug', async () => {
+  //   const adminCookie = await createAdminUser();
+  //   const desired = departments[0];
 
-    const response = await request
-      .delete(`/api/departments/delete/${desired.slug}`)
-      .set('Cookie', adminCookie)
-      .expect('Content-Type', /json/);
+  //   const response = await request
+  //     .delete(`/api/departments/delete/${desired.slug}`)
+  //     .set('Cookie', adminCookie)
+  //     .expect('Content-Type', /json/);
 
-    expect(response.status).toBe(200);
-    expect(response.body.message).toBe('department removed correctly');
-  });
+  //   expect(response.status).toBe(200);
+  //   expect(response.body.message).toBe('department removed correctly');
+  // });
 
-  it('/departments/delete/:slug :  if no exist department with the given slug return an error response', async () => {
-    const adminCookie = await createAdminUser();
+  // it('/departments/delete/:slug :  if no exist department with the given slug return an error response', async () => {
+  //   const adminCookie = await createAdminUser();
 
-    const response = await request
-      .delete(`/api/departments/delete/no_exist_slug`)
-      .set('Cookie', adminCookie)
-      .expect('Content-Type', /json/);
+  //   const response = await request
+  //     .delete(`/api/departments/delete/no_exist_slug`)
+  //     .set('Cookie', adminCookie)
+  //     .expect('Content-Type', /json/);
 
-    expect(response.status).toBe(404);
-    expect(response.body.message).toBe(
-      'No department was found with this slug'
-    );
-  });
+  //   expect(response.status).toBe(404);
+  //   expect(response.body.message).toBe(
+  //     'No department was found with this slug'
+  //   );
+  // });
 });

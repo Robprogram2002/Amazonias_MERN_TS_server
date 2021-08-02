@@ -88,7 +88,7 @@ export const create = async (req: Request, res: Response) => {
 
 export const update = async (req: Request, res: Response) => {
   try {
-    const { name, banners, description } = req.body;
+    const { name, banners, description, departmentId } = req.body;
     const { slug } = req.params;
     const errors = validationResult(req);
 
@@ -107,6 +107,7 @@ export const update = async (req: Request, res: Response) => {
           name,
           slug: slugify(name),
           banners,
+          departmentId,
           description,
         },
       }
@@ -123,9 +124,9 @@ export const update = async (req: Request, res: Response) => {
 
 export const deleteHandler = async (req: Request, res: Response) => {
   try {
-    const { slug } = req.params;
+    const { id } = req.params;
 
-    const result = await Category.deleteOne({ slug });
+    const result = await Category.deleteOne({ _id: Types.ObjectId(id) });
 
     if (result.ok === 1 && result.deletedCount === 1) {
       res.status(200).json({ message: 'category removed correctly' });
