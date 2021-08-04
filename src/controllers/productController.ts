@@ -27,6 +27,7 @@ export const fetchOne = async (req: Request, res: Response) => {
     errorHandler(error, res);
   }
 };
+
 export const create = async (req: Request, res: Response) => {
   try {
     const errors = validationResult(req);

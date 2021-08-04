@@ -10,6 +10,7 @@ import departmentRoutes from './routes/departmentRoutes';
 import categoryRoutes from './routes/categoryRoutes';
 import subcategoryRoutes from './routes/subcategoryRoutes';
 import imageRoutes from './routes/imageRoutes';
+import productRoutes from './routes/productRoutes';
 
 // app
 const app = express();
@@ -32,6 +33,7 @@ app.use('/api/departments', departmentRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/sub-categories', subcategoryRoutes);
 app.use('/api/images', imageRoutes);
+app.use('/api/products', productRoutes);
 
 // catch request made to no api end point
 app.use('/', (req: Request, res: Response) => {

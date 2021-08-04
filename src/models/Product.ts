@@ -12,13 +12,18 @@ export interface IProduct {
   images: {
     publicId: string;
     url: string;
-  };
+  }[];
   features: string[];
+  specifications: {
+    name: string;
+    value: string;
+  }[];
   sale: {
     onSale: boolean;
     saleAmount: number;
     expiry: Date;
   };
+  departmentId: any;
   categoryId: any;
   subs: any[];
   availability: string;
@@ -73,10 +78,10 @@ const productSchema = new Schema(
       },
     },
     description: {
-      type: String,
-      text: true,
-      minLength: [50, 'Description must be at least 50 characters long'],
-      required: true,
+      // type: String,
+      // text: true,
+      // minLength: [50, 'Description must be at least 50 characters long'],
+      // required: true,
     },
     sku: {
       type: String,
@@ -106,6 +111,18 @@ const productSchema = new Schema(
       },
     ],
     features: [String],
+    specifications: [
+      {
+        name: {
+          type: String,
+          required: true,
+        },
+        value: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
     sale: {
       onSale: {
         type: Boolean,
@@ -118,6 +135,11 @@ const productSchema = new Schema(
       expiry: {
         type: Date,
       },
+    },
+    departmentId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Category',
+      required: true,
     },
     categoryId: {
       type: Schema.Types.ObjectId,
@@ -162,15 +184,10 @@ const productSchema = new Schema(
       required: true,
     },
     details: {
-      type: String,
-      required: true,
+      // type: String,
+      // required: true,
+      // text: true,
     },
-    // extraDetails: [
-    //   {
-    //     name: { type: String, required: true },
-    //     value: { type: String, required: true },
-    //   },
-    // ],
     ratings: [
       {
         star: {

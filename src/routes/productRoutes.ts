@@ -7,11 +7,11 @@ import {
   create,
   deleteHandler,
   fetchOne,
-  list,
-  listByDepartment,
-  update,
   filterByText,
-} from '../controllers/categoryController';
+  list,
+  listByCategory,
+  update,
+} from '../controllers/productController';
 
 const router = Router();
 
@@ -28,11 +28,12 @@ const productValidator = [
   body('type').isString().notEmpty().isIn(['simple', 'variants', 'intengible']),
   body('basePrice').notEmpty().isFloat({ gt: 0, min: 0 }),
   body('currency').notEmpty().isString().isIn(['USD', 'MXN', 'EUR']),
-  body('description').notEmpty().isString(),
+  body('description').notEmpty(),
   body('sku').notEmpty().isString().trim(),
   body('stock').notEmpty().isInt({ min: 0, gt: -1 }),
-  body('features').notEmpty().isArray({}),
-  body('catgeoryId').notEmpty().isString(),
+  body('features').notEmpty().isArray(),
+  body('departmentId').notEmpty().isString(),
+  body('categoryId').notEmpty().isString(),
   body('subs').notEmpty().isArray({ min: 1 }),
   body('details').notEmpty().isString(),
   body('brand').notEmpty().isString(),
@@ -51,7 +52,7 @@ const productValidator = [
 
 router.get('/list', list);
 router.get('/list/:slug', fetchOne);
-router.get('/list/by-category/:categoryId', listByDepartment);
+router.get('/list/by-category/:categoryId', listByCategory);
 router.get('/filter/by-text', filterByText);
 router.post('/create', isAuth, isAdmin, productValidator, create);
 router.patch('/update/:slug', isAuth, isAdmin, productValidator, update);
