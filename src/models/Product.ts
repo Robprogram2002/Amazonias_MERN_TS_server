@@ -1,4 +1,5 @@
 import { model, Schema } from 'mongoose';
+import variantSchema, { IVariant } from './Variant';
 
 export interface IProduct {
   title: string;
@@ -31,6 +32,13 @@ export interface IProduct {
   condition: string;
   brand: string;
   details: string;
+  variants:
+    | {
+        name: string;
+        options: string[];
+      }[]
+    | null;
+  productVariants: IVariant[] | null;
   ratings: {
     star: number;
     postedBy: any;
@@ -49,7 +57,6 @@ const productSchema = new Schema(
       minLength: [4, 'Too short name'],
       maxLength: [70, 'Too long name'],
       unique: true,
-      text: true,
     },
     slug: {
       type: String,
@@ -60,7 +67,7 @@ const productSchema = new Schema(
     type: {
       type: String,
       enum: {
-        values: ['simple', 'variants', 'intengible'],
+        values: ['simple', 'variant', 'intengible'],
         message: '{VALUE} is not supported like a product type',
       },
     },
@@ -78,15 +85,14 @@ const productSchema = new Schema(
       },
     },
     description: {
-      // type: String,
       // text: true,
       // minLength: [50, 'Description must be at least 50 characters long'],
       // required: true,
     },
     sku: {
       type: String,
-      //   required: true,
-      unique: true,
+      // unique : true,
+      // check in controller action that  this field is unique
     },
     stock: {
       type: Number,
@@ -184,10 +190,21 @@ const productSchema = new Schema(
       required: true,
     },
     details: {
-      // type: String,
-      // required: true,
-      // text: true,
+      type: String,
+      required: true,
     },
+    variants: [
+      {
+        name: { type: String, requierd: true },
+        options: [
+          {
+            type: String,
+            required: true,
+          },
+        ],
+      },
+    ],
+    productVariants: [variantSchema],
     ratings: [
       {
         star: {

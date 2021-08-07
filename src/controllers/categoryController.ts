@@ -5,32 +5,7 @@ import { Types } from 'mongoose';
 import Category from '../models/Category';
 import errorHandler from '../utils/ErrorHandler';
 import HttpException from '../utils/HttpException';
-
-const departmentLookUp = {
-  $lookup: {
-    from: 'departments',
-    as: 'department',
-    let: {
-      department: '$departmentId',
-    },
-    pipeline: [
-      {
-        $match: {
-          $expr: {
-            $eq: ['$_id', '$$department'],
-          },
-        },
-      },
-      {
-        $project: {
-          name: 1,
-          _id: 1,
-          slug: 1,
-        },
-      },
-    ],
-  },
-};
+import { departmentLookUp } from '../utils/queries/LookUps';
 
 export const list = async (req: Request, res: Response) => {
   try {
@@ -52,6 +27,7 @@ export const fetchOne = async (req: Request, res: Response) => {
     errorHandler(error, res);
   }
 };
+
 export const create = async (req: Request, res: Response) => {
   try {
     const { name, banners, departmentId, description } = req.body;

@@ -5,6 +5,7 @@ import { Types } from 'mongoose';
 import errorHandler from '../utils/ErrorHandler';
 import HttpException from '../utils/HttpException';
 import Product from '../models/Product';
+import { categoryLookUp, departmentLookUp } from '../utils/queries/LookUps';
 
 export const list = async (req: Request, res: Response) => {
   try {
@@ -49,13 +50,23 @@ export const create = async (req: Request, res: Response) => {
       throw new HttpException(400, 'Already exist a category with these name');
     }
 
-    const newProduct = await new Product({
-      ...req.body,
-    }).save();
+    let newProduct: any;
+    if (req.body.type === 'simple') {
+      newProduct = await new Product({
+        ...req.body,
+        variants: null,
+        productVariants: null,
+      }).save();
+    } else {
+      newProduct = await new Product({
+        ...req.body,
+      }).save();
+    }
 
     res.status(200).json(newProduct);
   } catch (error) {
     errorHandler(error, res);
+    console.log(error);
   }
 };
 
@@ -94,9 +105,73 @@ export const listByCategory = async (req: Request, res: Response) => {
   }
 };
 
-export const filterByText = async (req: Request, res: Response) => {
+export const adminFilter = async (req: Request, res: Response) => {
   try {
-    res.status(200).json({});
+    const { text, department, category, subcategory } = req.body;
+
+    let products: any[] = [];
+
+    if (department && !category && !subcategory) {
+      products = await Product.aggregate([
+        {
+          $match: {
+            title: {
+              $regex: text || '',
+              $options: 'i',
+            },
+            departmentId: new Types.ObjectId(department),
+          },
+        },
+        departmentLookUp,
+        categoryLookUp,
+      ]);
+    } else if (department && category && !subcategory) {
+      products = await Product.aggregate([
+        {
+          $match: {
+            title: {
+              $regex: text || '',
+              $options: 'i',
+            },
+            departmentId: new Types.ObjectId(department),
+            categoryId: new Types.ObjectId(category),
+          },
+        },
+        departmentLookUp,
+        categoryLookUp,
+      ]);
+    } else if (department && category && subcategory) {
+      products = await Product.aggregate([
+        {
+          $match: {
+            title: {
+              $regex: text || '',
+              $options: 'i',
+            },
+            departmentId: new Types.ObjectId(department),
+            categoryId: new Types.ObjectId(category),
+            subs: new Types.ObjectId(subcategory),
+          },
+        },
+        departmentLookUp,
+        categoryLookUp,
+      ]);
+    } else {
+      products = await Product.aggregate([
+        {
+          $match: {
+            title: {
+              $regex: text || '',
+              $options: 'i',
+            },
+          },
+        },
+        departmentLookUp,
+        categoryLookUp,
+      ]);
+    }
+
+    res.status(200).json(products);
   } catch (error) {
     errorHandler(error, res);
   }
