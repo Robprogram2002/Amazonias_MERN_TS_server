@@ -11,6 +11,8 @@ import categoryRoutes from './routes/categoryRoutes';
 import subcategoryRoutes from './routes/subcategoryRoutes';
 import imageRoutes from './routes/imageRoutes';
 import productRoutes from './routes/productRoutes';
+import brandRoutes from './routes/brandRoutes';
+import vendorRoutes from './routes/vendorRoutes';
 
 // app
 const app = express();
@@ -34,6 +36,8 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/sub-categories', subcategoryRoutes);
 app.use('/api/images', imageRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/brands', brandRoutes);
+app.use('/api/vendors', vendorRoutes);
 
 // catch request made to no api end point
 app.use('/', (req: Request, res: Response) => {

@@ -1,10 +1,12 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import slugify from 'slugify';
-import { Types } from 'mongoose';
+// import { Types } from 'mongoose';
 import Department from '../models/Department';
 import errorHandler from '../utils/ErrorHandler';
 import HttpException from '../utils/HttpException';
+import Category from '../models/Category';
+import SubCategory from '../models/SubCategory';
 
 export const list = async (req: Request, res: Response) => {
   try {
@@ -26,6 +28,7 @@ export const fetchOne = async (req: Request, res: Response) => {
     errorHandler(error, res);
   }
 };
+
 export const create = async (req: Request, res: Response) => {
   try {
     const { name, banners, description } = req.body;
@@ -61,6 +64,7 @@ export const create = async (req: Request, res: Response) => {
     errorHandler(error, res);
   }
 };
+
 export const update = async (req: Request, res: Response) => {
   try {
     const { name, banners, description } = req.body;
@@ -96,11 +100,12 @@ export const update = async (req: Request, res: Response) => {
     errorHandler(error, res);
   }
 };
+
 export const deleteHandler = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const result = await Department.deleteOne({ _id: Types.ObjectId(id) });
+    const result = await Department.deleteOne({ _id: id });
 
     if (result.ok === 1 && result.deletedCount === 1) {
       res.status(200).json({ message: 'department removed correctly' });
@@ -131,6 +136,55 @@ export const filterByText = async (req: Request, res: Response) => {
     } else {
       res.status(400).json(req.query);
     }
+  } catch (error) {
+    errorHandler(error, res);
+  }
+};
+
+export const fetchMenuData = async (req: Request, res: Response) => {
+  try {
+    const departments = await Department.find({}).lean();
+
+    const departmentsWitCategories = await Promise.all(
+      departments.map(async (depart) => {
+        const categories = await Category.find({
+          departmentId: depart._id,
+        }).lean();
+        return { ...depart, categories };
+      })
+    );
+
+    res.status(200).json(departmentsWitCategories);
+  } catch (error) {
+    errorHandler(error, res);
+  }
+};
+
+export const fetchMenuDataTwo = async (req: Request, res: Response) => {
+  try {
+    const departments = await Department.find({}).lean();
+
+    const data = await Promise.all(
+      departments.map(async (depart) => {
+        const categories = await Category.find({
+          departmentId: depart._id,
+        }).lean();
+
+        const categoriesWithSubs = await Promise.all(
+          categories.map(async (category) => {
+            const subs = await SubCategory.find({ categoryId: category._id })
+              .limit(4)
+              .lean();
+
+            return { ...category, subs };
+          })
+        );
+
+        return { ...depart, categories: categoriesWithSubs };
+      })
+    );
+
+    res.status(200).json(data);
   } catch (error) {
     errorHandler(error, res);
   }

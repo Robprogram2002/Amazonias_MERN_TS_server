@@ -102,7 +102,7 @@ export const deleteHandler = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const result = await Category.deleteOne({ _id: Types.ObjectId(id) });
+    const result = await Category.deleteOne({ _id: id });
 
     if (result.ok === 1 && result.deletedCount === 1) {
       res.status(200).json({ message: 'category removed correctly' });

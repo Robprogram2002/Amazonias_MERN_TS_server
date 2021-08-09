@@ -10,6 +10,8 @@ import {
   list,
   update,
   filterByText,
+  fetchMenuData,
+  fetchMenuDataTwo,
 } from '../controllers/departmentController';
 
 const departValidator = [
@@ -52,6 +54,8 @@ const router = Router();
 router.get('/list', list);
 router.get('/list/:slug', fetchOne);
 router.get('/filter/by-text', filterByText);
+router.get('/menu-data', fetchMenuData);
+router.get('/menu-data-two', fetchMenuDataTwo);
 router.post('/create', isAuth, isAdmin, departValidator, create);
 router.patch('/update/:slug', isAuth, isAdmin, departValidator, update);
 router.delete('/delete/:id', isAuth, isAdmin, deleteHandler);

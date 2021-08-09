@@ -1,6 +1,7 @@
 import { Schema, model } from 'mongoose';
 
 export interface ISubCategory {
+  _id: string;
   name: string;
   slug: string;
   categoryId: string;
@@ -27,6 +28,7 @@ const subCategorySchema = new Schema(
     categoryId: {
       type: Schema.Types.ObjectId,
       ref: 'Category',
+      index: true,
     },
   },
   { timestamps: true }

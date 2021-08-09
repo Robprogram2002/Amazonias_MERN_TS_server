@@ -1,6 +1,7 @@
 import { Schema, model } from 'mongoose';
 
 export interface ICategory {
+  _id: string;
   name: string;
   banners: { publicId: string; url: string }[];
   slug: string;
@@ -46,6 +47,7 @@ const categorySchema = new Schema(
     departmentId: {
       type: Schema.Types.ObjectId,
       ref: 'Department',
+      index: true,
     },
   },
   { timestamps: true }
