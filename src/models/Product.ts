@@ -2,6 +2,8 @@ import { model, Schema } from 'mongoose';
 import variantSchema, { IVariant } from './Variant';
 
 export interface IProduct {
+  _id: string;
+  vendor: string;
   title: string;
   slug: string;
   type: string;
@@ -159,11 +161,11 @@ const productSchema = new Schema(
         required: true,
       },
     ],
-    // vendor: {
-    //   type: Schema.Types.ObjectId,
-    //   ref: 'Vendor',
-    //   required: true,
-    // },
+    vendor: {
+      type: Schema.Types.ObjectId,
+      ref: 'Vendor',
+      required: true,
+    },
     availability: {
       type: String,
       enum: {

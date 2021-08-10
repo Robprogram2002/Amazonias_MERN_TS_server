@@ -14,6 +14,7 @@ const vendorSchema = new Schema(
       minLength: [4, 'Too short name'],
       maxLength: [70, 'Too long name'],
       unique: true,
+      index: true,
     },
     slug: {
       type: String,

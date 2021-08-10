@@ -1,12 +1,10 @@
 import { Request, Response } from 'express';
-// import { validationResult } from 'express-validator';
+import { validationResult } from 'express-validator';
 // import slugify from 'slugify';
-import { Types } from 'mongoose';
-import SubCategory from '../models/SubCategory';
 import errorHandler from '../utils/ErrorHandler';
 import HttpException from '../utils/HttpException';
-import { categoryLookUp } from '../utils/queries/LookUps';
 import Brand from '../models/Brand';
+import Product from '../models/Product';
 
 export const list = async (req: Request, res: Response) => {
   try {
@@ -30,7 +28,21 @@ export const fetchOne = async (req: Request, res: Response) => {
 };
 export const create = async (req: Request, res: Response) => {
   try {
-    res.status(200).json('hellooo');
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      throw new HttpException(
+        400,
+        'Bad input data',
+        errors.array({ onlyFirstError: true })
+      );
+    }
+
+    const { name, logo } = req.body;
+
+    const brand = await new Brand({ logo, name }).save();
+
+    res.status(200).json(brand);
   } catch (error) {
     errorHandler(error, res);
   }
@@ -62,37 +74,30 @@ export const deleteHandler = async (req: Request, res: Response) => {
 
 export const filterByText = async (req: Request, res: Response) => {
   try {
-    const { text, category } = req.query;
+    const { text } = req.query;
+    let brands: any[] = [];
 
-    let subcategories: any[] = [];
-
-    if (category && typeof category === 'string') {
-      subcategories = await SubCategory.aggregate([
-        {
-          $match: {
-            name: {
-              $regex: text || '',
-              $options: 'i',
-            },
-            categoryId: new Types.ObjectId(category),
-          },
+    if (typeof text === 'string') {
+      brands = await Brand.find({
+        name: {
+          $regex: text,
+          $options: 'i',
         },
-        categoryLookUp,
-      ]);
+      }).lean();
     } else {
-      subcategories = await SubCategory.aggregate([
-        {
-          $match: {
-            name: {
-              $regex: text || '',
-              $options: 'i',
-            },
-          },
-        },
-        categoryLookUp,
-      ]);
+      brands = await Brand.find({}).lean();
     }
-    res.status(200).json(subcategories);
+
+    const data = await Promise.all(
+      brands.map(async (brand) => {
+        const productsCount = await Product.countDocuments({
+          brand: brand.name,
+        });
+        return { ...brand, products: productsCount };
+      })
+    );
+
+    res.status(200).json(data);
   } catch (error) {
     errorHandler(error, res);
   }

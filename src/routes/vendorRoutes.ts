@@ -10,6 +10,7 @@ import {
   list,
   update,
   filterByText,
+  fetchOneWithProducts,
 } from '../controllers/vendorController';
 
 const router = Router();
@@ -42,6 +43,7 @@ const vendorValidator = [
 
 router.get('/list', list);
 router.get('/list/:slug', fetchOne);
+router.get('/list/:slug/with-products', fetchOneWithProducts);
 router.get('/filter/by-text', filterByText);
 router.post('/create', isAuth, isAdmin, vendorValidator, create);
 router.patch('/update/:slug', isAuth, isAdmin, vendorValidator, update);

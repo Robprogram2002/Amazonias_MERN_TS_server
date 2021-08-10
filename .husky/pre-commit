@@ -27,12 +27,12 @@ npm run check-types ||
     false;
 )
 
-npm run test || 
-(
-    echo '🤡😂❌🤡 Failed  tests check. 🤡😂❌🤡
-        Come on, you can fix that before triying to commit'
-    false;
-)
+# npm run test || 
+# (
+#     echo '🤡😂❌🤡 Failed  tests check. 🤡😂❌🤡
+#         Come on, you can fix that before triying to commit'
+#     false;
+# )
 
 # If everything passes... Now we can commit
 echo '🤔🤔🤔🤔... Alright.... Code looks good to me... Trying to build now. 🤔🤔🤔🤔'
