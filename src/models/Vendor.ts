@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
 
 interface IVendor {
-  _id: string;
+  _id: any;
   name: string;
   slug: string;
   description: string;

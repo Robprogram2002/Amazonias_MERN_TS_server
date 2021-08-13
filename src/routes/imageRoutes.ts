@@ -9,7 +9,8 @@ import { upload, remove } from '../controllers/imageController';
 
 const router = Router();
 
-router.post('/upload', isAuth, isAdmin, upload);
+// router.post('/upload', isAuth, isAdmin, upload);
+router.post('/upload', upload);
 router.delete('/remove/:publicId', isAuth, isAdmin, remove);
 
 export default router;

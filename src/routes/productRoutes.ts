@@ -11,6 +11,9 @@ import {
   listByCategory,
   update,
   adminFilter,
+  fetchHomeProducts,
+  fetchStoreProducts,
+  fetchProductPageData,
 } from '../controllers/productController';
 
 const router = Router();
@@ -21,7 +24,7 @@ const baseValidator = [
     .isString()
     .trim()
     .escape()
-    .isLength({ min: 4, max: 70 })
+    .isLength({ min: 4 })
     .withMessage(
       'title must be at least 4 characters long and at most 70 characters long'
     ),
@@ -67,9 +70,12 @@ const productVariantValidator = [
 
 router.get('/list', list);
 router.get('/list/:slug', fetchOne);
-router.post('/admin/filter', isAuth, isAdmin, adminFilter);
+router.get('/home', fetchHomeProducts);
 router.get('/list/by-category/:categoryId', listByCategory);
-router.post('/create', isAuth, isAdmin, productValidator, create);
+router.get('/page/:slug', fetchProductPageData);
+router.post('/admin/filter', isAuth, isAdmin, adminFilter);
+// router.post('/create', isAuth, isAdmin, productValidator, create);
+router.post('/create', productValidator, create);
 router.post(
   '/create-variants',
   isAuth,
@@ -77,6 +83,7 @@ router.post(
   productVariantValidator,
   create
 );
+router.post('/store', fetchStoreProducts);
 router.patch('/update/:slug', isAuth, isAdmin, productValidator, update);
 router.delete('/delete/:id', isAuth, isAdmin, deleteHandler);
 

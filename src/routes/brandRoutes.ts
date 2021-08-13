@@ -10,6 +10,7 @@ import {
   list,
   update,
   filterByText,
+  fetchFeaturedBrands,
 } from '../controllers/brandController';
 
 const brandValidator = [
@@ -29,6 +30,7 @@ const router = Router();
 router.get('/list', list);
 router.get('/list/:slug', fetchOne);
 router.get('/filter/by-text', filterByText);
+router.get('/featured', fetchFeaturedBrands);
 router.post('/create', isAuth, isAdmin, brandValidator, create);
 router.patch('/update/:slug', isAuth, isAdmin, brandValidator, update);
 router.delete('/delete/:id', isAuth, isAdmin, deleteHandler);

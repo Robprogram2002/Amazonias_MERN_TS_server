@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import slugify from 'slugify';
+import { Types } from 'mongoose';
 import errorHandler from '../utils/ErrorHandler';
 import HttpException from '../utils/HttpException';
 import Vendor from '../models/Vendor';
@@ -112,6 +113,64 @@ export const filterByText = async (req: Request, res: Response) => {
     } else {
       vendors = await Vendor.find({}).lean();
     }
+
+    res.status(200).json(vendors);
+  } catch (error) {
+    errorHandler(error, res);
+  }
+};
+
+export const fetchFeaturedVendors = async (req: Request, res: Response) => {
+  try {
+    const department: string = req.query.department as string;
+    const category: string = req.query.category as string;
+    const sub: string = req.query.sub as string;
+
+    let matchObject: any;
+
+    if (sub) {
+      matchObject = {
+        departmentId: new Types.ObjectId(department),
+        categoryId: new Types.ObjectId(category),
+        subs: new Types.ObjectId(sub),
+      };
+    } else if (category) {
+      matchObject = {
+        departmentId: new Types.ObjectId(department),
+        categoryId: new Types.ObjectId(category),
+      };
+    } else {
+      matchObject = {
+        departmentId: new Types.ObjectId(department),
+      };
+    }
+
+    const result = await Product.aggregate([
+      {
+        $match: matchObject,
+      },
+      {
+        $group: {
+          _id: '$vendor',
+          productsCount: {
+            $sum: 1,
+          },
+        },
+      },
+      {
+        $sort: {
+          productsCount: -1,
+        },
+      },
+      {
+        $limit: 8,
+      },
+    ]);
+
+    const vendorsId = result.map((group) => new Types.ObjectId(group._id));
+    const vendors = await Vendor.find({
+      _id: { $in: vendorsId },
+    });
 
     res.status(200).json(vendors);
   } catch (error) {

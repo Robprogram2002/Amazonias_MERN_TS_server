@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 // import slugify from 'slugify';
+import { Types } from 'mongoose';
 import errorHandler from '../utils/ErrorHandler';
 import HttpException from '../utils/HttpException';
 import Brand from '../models/Brand';
@@ -98,6 +99,64 @@ export const filterByText = async (req: Request, res: Response) => {
     );
 
     res.status(200).json(data);
+  } catch (error) {
+    errorHandler(error, res);
+  }
+};
+
+export const fetchFeaturedBrands = async (req: Request, res: Response) => {
+  try {
+    const department: string = req.query.department as string;
+    const category: string = req.query.category as string;
+    const sub: string = req.query.sub as string;
+
+    let matchObject: any;
+
+    if (sub) {
+      matchObject = {
+        departmentId: new Types.ObjectId(department),
+        categoryId: new Types.ObjectId(category),
+        subs: new Types.ObjectId(sub),
+      };
+    } else if (category) {
+      matchObject = {
+        departmentId: new Types.ObjectId(department),
+        categoryId: new Types.ObjectId(category),
+      };
+    } else {
+      matchObject = {
+        departmentId: new Types.ObjectId(department),
+      };
+    }
+
+    const result = await Product.aggregate([
+      {
+        $match: matchObject,
+      },
+      {
+        $group: {
+          _id: '$brand',
+          productsCount: {
+            $sum: 1,
+          },
+        },
+      },
+      {
+        $sort: {
+          productsCount: -1,
+        },
+      },
+      {
+        $limit: 8,
+      },
+    ]);
+
+    const brandsName = result.map((group) => group._id);
+    const brands = await Brand.find({
+      name: { $in: brandsName },
+    });
+
+    res.status(200).json(brands);
   } catch (error) {
     errorHandler(error, res);
   }

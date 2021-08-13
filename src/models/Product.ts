@@ -2,7 +2,6 @@ import { model, Schema } from 'mongoose';
 import variantSchema, { IVariant } from './Variant';
 
 export interface IProduct {
-  _id: string;
   vendor: string;
   title: string;
   slug: string;
@@ -57,7 +56,6 @@ const productSchema = new Schema(
       type: String,
       required: true,
       minLength: [4, 'Too short name'],
-      maxLength: [70, 'Too long name'],
       unique: true,
     },
     slug: {
@@ -105,6 +103,7 @@ const productSchema = new Schema(
       type: Number,
       default: 0,
       min: [0, 'sold must be greater than or equal to 0'],
+      index: true,
     },
     images: [
       {
@@ -136,6 +135,7 @@ const productSchema = new Schema(
         type: Boolean,
         required: true,
         default: false,
+        index: true,
       },
       saleAmount: {
         type: Number,
@@ -148,23 +148,27 @@ const productSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'Category',
       required: true,
+      index: true,
     },
     categoryId: {
       type: Schema.Types.ObjectId,
       ref: 'Category',
       required: true,
+      index: true,
     },
     subs: [
       {
         type: Schema.Types.ObjectId,
         ref: 'SubCategory',
         required: true,
+        index: true,
       },
     ],
     vendor: {
       type: Schema.Types.ObjectId,
       ref: 'Vendor',
       required: true,
+      index: true,
     },
     availability: {
       type: String,
@@ -190,6 +194,7 @@ const productSchema = new Schema(
     brand: {
       type: String,
       required: true,
+      index: true,
     },
     details: {
       type: String,

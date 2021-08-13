@@ -11,6 +11,7 @@ import {
   update,
   filterByText,
   fetchOneWithProducts,
+  fetchFeaturedVendors,
 } from '../controllers/vendorController';
 
 const router = Router();
@@ -45,6 +46,7 @@ router.get('/list', list);
 router.get('/list/:slug', fetchOne);
 router.get('/list/:slug/with-products', fetchOneWithProducts);
 router.get('/filter/by-text', filterByText);
+router.get('/featured', fetchFeaturedVendors);
 router.post('/create', isAuth, isAdmin, vendorValidator, create);
 router.patch('/update/:slug', isAuth, isAdmin, vendorValidator, update);
 router.delete('/delete/:id', isAuth, isAdmin, deleteHandler);
