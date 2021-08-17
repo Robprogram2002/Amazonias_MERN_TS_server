@@ -6,6 +6,7 @@ import errorHandler from '../utils/ErrorHandler';
 import HttpException from '../utils/HttpException';
 import Product from '../models/Product';
 import { categoryLookUp, departmentLookUp } from '../utils/queries/LookUps';
+import User from '../models/User';
 
 const addField = {
   $addFields: {
@@ -352,37 +353,102 @@ export const fetchStoreProducts = async (req: Request, res: Response) => {
 export const fetchProductPageData = async (req: Request, res: Response) => {
   try {
     const { slug } = req.params;
+    const email = req.query.email as string | null;
 
-    const product = await Product.aggregate([{ $match: { slug } }, addField]);
+    const product = await Product.findOne({ slug })
+      .populate('vendor', 'name _id slug image')
+      .populate('departmentId', '_id name slug')
+      .populate('categoryId', '_id name slug')
+      .lean();
 
-    //     $lookup: {
-    //   from: 'categories',
-    //   as: 'category',
-    //   let: {
-    //     category: '$categoryId',
-    //   },
-    //   pipeline: [
-    //     {
-    //       $match: {
-    //         $expr: {
-    //           $eq: ['$_id', '$$category'],
-    //         },
-    //       },
-    //     },
-    //     {
-    //       $project: {
-    //         name: 1,
-    //         _id: 1,
-    //         slug: 1,
-    //       },
-    //     },
-    //     {
-    //       $limit: 1,
-    //     },
-    //   ],
-    // },
+    if (!product) {
+      throw new HttpException(404, 'Product not foun with this slug');
+    }
 
-    res.status(200).json(product);
+    const rateCount = product.ratings.length;
+    let averageRate =
+      product.ratings.reduce((acc, rating) => acc + rating.star, 0) / rateCount;
+    averageRate = +averageRate.toFixed(1);
+
+    const productData = { ...product, rateCount, averageRate };
+
+    const productsOntheSameCategory = await Product.aggregate([
+      {
+        $match: {
+          departmentId: product.departmentId._id,
+          categoryId: product.categoryId._id,
+        },
+      },
+      { $limit: 12 },
+      addField,
+    ]);
+
+    const relatedProducts = await Product.aggregate([
+      {
+        $match: {
+          subs: { $all: product.subs },
+        },
+      },
+      { $limit: 12 },
+      addField,
+    ]);
+
+    let baseOnHistory: any[] | null = null;
+
+    if (email) {
+      const user = await User.aggregate([
+        { $match: { email } },
+        {
+          $set: {
+            searchHistory: {
+              $function: {
+                body(searches: { createdAt: Date; text: string }[]) {
+                  return searches.sort((a, b) => {
+                    const dateA = new Date(a.createdAt).getTime();
+                    const dateB = new Date(b.createdAt).getTime();
+                    return dateA < dateB ? 1 : -1;
+                  });
+                },
+                args: ['$searchHistory'],
+                lang: 'js',
+              },
+            },
+          },
+        },
+        { $limit: 1 },
+        {
+          $project: {
+            searchHistory: 1,
+          },
+        },
+      ]);
+      const searches: string[] = user[0].searchHistory;
+      baseOnHistory = await Product.aggregate([
+        {
+          $match: {
+            // $or: [
+            //   { title: { $regex: 'monitor', $options: 'i' } },
+            //   { title: { $regex: 'stereo', $options: 'i' } },
+            //   { title: { $regex: 'laptop', $options: 'i' } },
+            // ],
+            $or: [
+              { title: { $regex: searches[0] || '', $options: 'i' } },
+              { title: { $regex: searches[1] || '', $options: 'i' } },
+              { title: { $regex: searches[2] || '', $options: 'i' } },
+            ],
+          },
+        },
+        { $limit: 12 },
+        addField,
+      ]);
+    }
+
+    res.status(200).json({
+      product: productData,
+      productsOntheSameCategory,
+      relatedProducts,
+      baseOnHistory,
+    });
   } catch (error) {
     errorHandler(error, res);
   }

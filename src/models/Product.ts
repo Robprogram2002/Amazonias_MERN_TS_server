@@ -2,6 +2,7 @@ import { model, Schema } from 'mongoose';
 import variantSchema, { IVariant } from './Variant';
 
 export interface IProduct {
+  _id: any;
   vendor: string;
   title: string;
   slug: string;
@@ -44,8 +45,6 @@ export interface IProduct {
     star: number;
     postedBy: any;
   }[];
-  questions: any[];
-  comments: any[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -146,7 +145,7 @@ const productSchema = new Schema(
     },
     departmentId: {
       type: Schema.Types.ObjectId,
-      ref: 'Category',
+      ref: 'Department',
       required: true,
       index: true,
     },
@@ -224,18 +223,18 @@ const productSchema = new Schema(
         },
       },
     ],
-    questions: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'Question',
-      },
-    ],
-    comments: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'Comment',
-      },
-    ],
+    // questions: [
+    //   {
+    //     type: Schema.Types.ObjectId,
+    //     ref: 'Question',
+    //   },
+    // ],
+    // comments: [
+    //   {
+    //     type: Schema.Types.ObjectId,
+    //     ref: 'Comment',
+    //   },
+    // ],
   },
   {
     timestamps: true,

@@ -18,6 +18,7 @@ type ShopCart = {
 };
 
 export interface IUser {
+  _id: any;
   username: string;
   email: string;
   password: string | null;
@@ -148,6 +149,19 @@ const userSchema = new Schema(
         },
       },
     },
+    searchHistory: [
+      {
+        text: {
+          type: String,
+          required: true,
+          unique: true,
+        },
+        createdAt: {
+          type: Schema.Types.Date,
+          required: true,
+        },
+      },
+    ],
   },
   {
     timestamps: true,

@@ -31,14 +31,6 @@ const departValidator = [
   body('banners')
     .isArray({ min: 4, max: 4 })
     .withMessage('department must have 4 banner images'),
-  // .custom((value) => {
-  //   if (!value.url || typeof value.url !== 'string') {
-  //     throw new Error('banners must have an string url property');
-  //   } else if (!value.publicId || typeof value.publicId !== 'string') {
-  //     throw new Error('banners must have an string publicId property');
-  //   }
-  //   return true;
-  // }),
   check('banners.*.url')
     .isString()
     .notEmpty()
