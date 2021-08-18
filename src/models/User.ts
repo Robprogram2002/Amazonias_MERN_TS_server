@@ -138,6 +138,7 @@ const userSchema = new Schema(
       totalAmount: {
         type: Number,
         min: [0, 'Total amount cannot be negative'],
+        default: 0,
       },
       coupon: {
         appliedCoupon: {

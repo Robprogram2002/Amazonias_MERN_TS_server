@@ -15,7 +15,9 @@ export default async (req: Request, res: Response, next: NextFunction) => {
       res.locals.user = await User.findOne({ email: result?.payload.email });
     } else {
       const firebaseUser = await admin.auth().verifyIdToken(token);
-      res.locals.user = await User.findOne({ email: firebaseUser.email });
+      res.locals.user = await User.findOne({
+        email: firebaseUser.email,
+      }).lean();
     }
 
     next();

@@ -14,6 +14,8 @@ import productRoutes from './routes/productRoutes';
 import brandRoutes from './routes/brandRoutes';
 import vendorRoutes from './routes/vendorRoutes';
 import questionRoutes from './routes/questionRoutes';
+import commentRoutes from './routes/commentRoutes';
+import cartRoutes from './routes/cartRoutes';
 
 // app
 const app = express();
@@ -40,6 +42,8 @@ app.use('/api/products', productRoutes);
 app.use('/api/brands', brandRoutes);
 app.use('/api/vendors', vendorRoutes);
 app.use('/api/questions', questionRoutes);
+app.use('/api/comments', commentRoutes);
+app.use('/api/users/cart', cartRoutes);
 
 // catch request made to no api end point
 app.use('/', (req: Request, res: Response) => {
