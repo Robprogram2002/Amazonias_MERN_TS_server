@@ -3,16 +3,21 @@ import cookie from 'cookie';
 import { validationResult } from 'express-validator';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import Stripe from 'stripe';
 import dotenv from 'dotenv';
 import sgMail from '@sendgrid/mail';
 import errorHandler from '../utils/ErrorHandler';
 import HttpException from '../utils/HttpException';
-import User from '../models/User';
+import User, { IUser } from '../models/User';
 import admin from '../firebase';
 
 dotenv.config();
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
+const stripe = new Stripe(process.env.STRIPE_SECRET!, {
+  typescript: true,
+  apiVersion: '2020-08-27',
+});
 
 export const signUpHandler = async (req: Request, res: Response) => {
   try {
@@ -125,6 +130,24 @@ export const localSignIn = async (req: Request, res: Response) => {
       throw new HttpException(400, 'Invalid password');
     }
 
+    // user pass validations
+    if (!user.payment || !user.payment.customerId) {
+      const customer = await stripe.customers.create({
+        email,
+        name: user.username,
+      });
+
+      await User.updateOne(
+        { _id: user._id },
+        {
+          payment: {
+            customerId: customer.id,
+            methods: [],
+          },
+        }
+      );
+    }
+
     const secret = process.env.JWT_SECRET || 'some_secret_word';
     const token = jwt.sign(
       {
@@ -162,7 +185,11 @@ export const firebaseSignIn = async (req: Request, res: Response) => {
     const firebaseUser = await admin.auth().verifyIdToken(token);
 
     // if not user, create one in DB
-    let user = await User.findOne({ email: firebaseUser.email });
+    let user = await User.findOne({ email: firebaseUser.email }).populate(
+      'cart.products.product',
+      'title basePrice images slug ratings currency availability stock _id',
+      'Product'
+    );
 
     if (!user) {
       user = new User({
@@ -198,7 +225,15 @@ export const firebaseSignIn = async (req: Request, res: Response) => {
 
 export const meRequestHandler = async (req: Request, res: Response) => {
   try {
-    const { user } = res.locals;
+    const { _id } = res.locals.user as IUser;
+
+    const user = await User.findById(_id)
+      .populate(
+        'cart.products.product',
+        'title basePrice images slug ratings currency availability stock _id',
+        'Product'
+      )
+      .lean();
 
     if (!user) throw new HttpException(401, 'Not user authenticated');
 

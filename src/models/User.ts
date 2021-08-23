@@ -1,11 +1,17 @@
 import { Schema, model } from 'mongoose';
 
 type ShippingAdressType = {
+  _id: string;
+  fname: string;
+  lname: string;
+  email: string;
+  phone: string;
   country: string;
-  state: string;
   city: string;
   zip: string;
-  street: string;
+  address: string;
+  secondAddress: string;
+  description?: string;
 };
 
 type ShopCart = {
@@ -25,12 +31,18 @@ export interface IUser {
   emailVerified: boolean;
   authProvider: string;
   photoUrl: string;
-  firstName: string;
-  lastName: string;
-  shippingAddresses: ShippingAdressType;
+  shippingAddresses: ShippingAdressType[];
   resetPassword: any;
   role: string;
   cart: ShopCart;
+  payment: {
+    customerId?: string;
+    methods?: string[];
+  };
+  searchHistory: {
+    text: string;
+    createdAt: Date;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -75,25 +87,25 @@ const userSchema = new Schema(
       default:
         'https://thumbs.dreamstime.com/z/default-avatar-profile-icon-vector-social-media-user-portrait-176256935.jpg',
     },
-    firstName: {
-      type: String,
-      trim: true,
-      minLength: [2, 'to short name'],
-      maxLength: [50, 'too long name'],
-    },
-    lastName: {
-      type: String,
-      trim: true,
-      minLength: [2, 'to short name'],
-      maxLength: [50, 'too long name'],
-    },
     shippingAddresses: [
       {
-        country: {
+        fname: {
           type: String,
           required: true,
         },
-        state: {
+        lname: {
+          type: String,
+          required: true,
+        },
+        email: {
+          type: String,
+          required: true,
+        },
+        phone: {
+          type: String,
+          required: true,
+        },
+        country: {
           type: String,
           required: true,
         },
@@ -104,11 +116,17 @@ const userSchema = new Schema(
         zip: {
           type: String,
           required: true,
-          //   match: 'd{5}',
         },
-        street: {
+        address: {
           type: String,
           required: true,
+        },
+        secondAddress: {
+          type: String,
+          required: true,
+        },
+        description: {
+          type: String,
         },
       },
     ],
@@ -149,6 +167,12 @@ const userSchema = new Schema(
           type: String,
         },
       },
+    },
+    payment: {
+      customerId: {
+        type: String,
+      },
+      methods: [String],
     },
     searchHistory: [
       {
